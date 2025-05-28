@@ -52,6 +52,7 @@ int main (int argc, char **argv)
 	int nr, nw; 		/* variabili di controllo per lettura/scrittura da/su pipe */
 	/*---------------------------------------------------*/
 	
+	/* ciao eddu!*/
 
 	/* Ciclo di attesa dei processi figli con recupero e stampa del valore tornato */
 

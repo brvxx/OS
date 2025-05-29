@@ -72,13 +72,13 @@ int main (int argc, char **argv)
 	{ 
 		if (pipe(pipe_pf[k]) < 0)
 		{
-			printf("Errore: creazione della pipe di comunicazione padre-figlio di indice %d non riuscita\n");
+			printf("Errore: creazione della pipe di comunicazione padre-figlio di indice %d non riuscita\n", k);
 			exit(4);
 		}
 
 		if (pipe(pipe_fp[k]) < 0)
 		{
-			printf("Errore: creazione della pipe di comunicazione figlio-padre di indice %d non riuscita\n");
+			printf("Errore: creazione della pipe di comunicazione figlio-padre di indice %d non riuscita\n", k);
 			exit(5);
 		}
 	}
@@ -88,7 +88,7 @@ int main (int argc, char **argv)
 	{ 
 		if ((pid = fork()) < 0)
 		{
-			printf("Errore: fork di creazione del figlio di indice %d non riuscita\n");
+			printf("Errore: fork di creazione del figlio di indice %d non riuscita\n", n);
 			exit(6);
 		}
 
@@ -221,18 +221,39 @@ int main (int argc, char **argv)
                 /* Richiesta all'utente di immissione di un carattere da sostituire */
                 printf("Immettere 1 solo carattere da sostituire (seguito dall'invio); Se non si voglia effettuare la sostituzione premere solo INVIO:\n"); 
 
-                /* lettura del carattere immesso */
-                scanf("%c", &ctrl); 
+                /* Lettura del carattere immesso */
+                read(0, &ctrl, sizeof(char)); 
 
                 /* Dal momento che la scrittura su stdin e' bufferizzata, e qui si e' andati a leggere 1 SOLO CARATTERE di quelli immessi, nel caso in cui sia stato 
-                    immesso il carattere da sostuire + newline, nel buffer rimarrebbe il carattere \n, letto nella successiva scanf. Bisogna dunque andare ad effettuare
-                    una lettura "a vuoto" */
+                    immesso il carattere da sostuire + newline, nel buffer rimarrebbe il carattere \n, che va a creare problemi. Infatti nella successiva scanf verrebbe 
+                    letto direttamente quel carattere (\n), senza neanche permettere all'utente di scrivere il nuovo carattre. 
+                    
+                    E' come se la scanf vedesse nell'stdin (visto come un buffer di memoria) ancora un carattere, per questo motivo non va nenache a chiedere all'utente 
+                    il nuovo carattere ma si limita ad utilizzare quello che si trova nel buffer. Poi alla terza scanf ovviamente essendo il buffer vuoto si rimetterebbe 
+                    in attesa di input da utente */
+
+                /* Per ovviare al problema quello che bisogna fare e' una lettura "a vuoto". Infatti nel caso in cui vengano in seriti due caratteri (carattere da sostituire
+                    + newline) bastera' andare ad effettuare una lettura a vuoto di 1 carattere dallo stdin, andando a mettere il carattere trovato in una variabile a caso che 
+                    non venga usata; In questo caso e' possibile utilizzare c che viene usata solo nei figli, e NON ovviamente ctrl, che contiene il carattere da inviare al figlio */ 
+
+                /* Lettura a vuoto per svuotare il buffer dello stdin, se il carattere ricevuto e' diverso da \n, dunque si avevano due caratteri nel buffer */
+                if (ctrl != '\n')
+                { 
+                    read(0, &c, sizeof(char)); 
+                }
+
+                /* Scrittura sulla pipe del figlio n del carattere da sostituire */
+                nw = write(pipe_pf[n][1], &ctrl, sizeof(char)); 
+
+                /* Controllo scirittura */
+                if (nw != sizeof(char))
+                { 
+                    printf("Errore: il processo padre non e' riuscito a passare il carattere da sostituire al figlio %d\n", n); 
+                    /* exit(8);        Si decide di non uscire per fare in modo che il processo padre possa attendere tutti i figli */
+                }
             }
-
-
         }
     }    
-
 
 	/* Ciclo di attesa dei processi figli con recupero e stampa del valore tornato */
     for (n = 0; n < N; n++)
@@ -240,7 +261,7 @@ int main (int argc, char **argv)
         if ((pid = wait(&status)) < 0)
         { 
             printf("Errore: wait di attesa di uno dei figli non riuscita\n");
-            exit(7);
+            exit(8);
         }
 
         if (WIFEXITED(status))
@@ -250,7 +271,7 @@ int main (int argc, char **argv)
         }
         else 
         { 
-            printf("Il processo figlio con pid = %d e' terminato in modo anomalo");
+            printf("Il processo figlio con pid = %d e' terminato in modo anomalo\n", pid);
         }
     }
 	exit(0); 

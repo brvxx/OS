@@ -17,16 +17,21 @@ typedef int pipe_t[2];
 
 int main (int argc, char **argv)
 {
-	/*---------------- Variabili locali -----------------*/
-	
-	int k; 				/* indice generico per i cicli */
-	int status; 		/* variabile di stato per la wait */
-	int ritorno; 		/* valore ritornato dai processi figli */
-	int nr, nw; 		/* variabili di controllo per lettura/scrittura da/su pipe */
-	/*---------------------------------------------------*/
-	
+    /*---------------- Variabili locali -----------------*/
+    
+    int k;              /* Indice generico per i cicli */
+    int status;         /* Variabile di stato per la wait */
+    int ritorno;        /* Valore ritornato dai processi figli */
+    int nr, nw;         /* Variabili di controllo per lettura/scrittura da/su pipe */
+    /*---------------------------------------------------*/
+    
 
-	/* Ciclo di attesa dei processi figli con recupero e stampa del valore tornato */
+    /* Si decide che in caso i processi figli incorrano in qualche tipo di errore, ritornino il valore -1 (255 senza segno), cosi' che la terminazione dovuta ad un errore, possa
+        essere distinta da quella normale. Infatti ... */
 
-	exit(0); 
+
+        
+    /* Ciclo di attesa dei processi figli con recupero e stampa del valore tornato */
+
+    exit(0); 
 }

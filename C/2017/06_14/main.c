@@ -219,10 +219,11 @@ int main (int argc, char **argv)
                 printf("Il processo figlio di indice %d ha trovato un occorrenza del carattere '%c' nel file %s alla posizione: %ld\n", n, Cx, argv[n + 1], pos_curr); 
 
                 /* Richiesta all'utente di immissione di un carattere da sostituire */
-                printf("Immettere 1 solo carattere da sostituire (seguito dall'invio); Se non si voglia effettuare la sostituzione premere solo INVIO:\n"); 
+                printf("Immettere 1 solo carattere da sostituire (seguito dall'invio); Qualora non si voglia effettuare la sostituzione premere solo INVIO:\n"); 
 
                 /* Lettura del carattere immesso */
-                read(0, &ctrl, sizeof(char)); 
+                read(0, &ctrl, sizeof(char));
+                // scanf("%c", &ctrl);  
 
                 /* Dal momento che la scrittura su stdin e' bufferizzata, e qui si e' andati a leggere 1 SOLO CARATTERE di quelli immessi, nel caso in cui sia stato 
                     immesso il carattere da sostuire + newline, nel buffer rimarrebbe il carattere \n, che va a creare problemi. Infatti nella successiva scanf verrebbe 
@@ -240,6 +241,7 @@ int main (int argc, char **argv)
                 if (ctrl != '\n')
                 { 
                     read(0, &c, sizeof(char)); 
+                    // scanf("%c", &c); 
                 }
 
                 /* Scrittura sulla pipe del figlio n del carattere da sostituire */

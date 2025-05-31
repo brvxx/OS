@@ -28,6 +28,9 @@ int main (int argc, char **argv)
     int nr, nw;         /* Variabili di controllo per lettura/scrittura da/su pipe */
     /*---------------------------------------------------*/
     
+    
+
+    /* Ciclo di creazione dei processi figli */
     for (n = 0; n < N; n++)
     { 
         if ((pid = fork()) < 0)
@@ -41,14 +44,15 @@ int main (int argc, char **argv)
             /* CODICE DEI FIGLI */
 
             /* Si decide che in caso i processi figli incorrano in qualche tipo di errore, ritornino il valore -1 (255 senza segno), cosi' che la terminazione dovuta ad un errore, possa
-                 essere distinta da quella normale. Infatti ... */
+                essere distinta da quella normale. Infatti ... */
 
         }
     }
 
     /* CODICE DEL PADRE */
 
-        
+       
+    
     /* Ciclo di attesa dei processi figli con recupero e stampa del valore tornato */
     for (n = 0; n < N; n++)
     { 

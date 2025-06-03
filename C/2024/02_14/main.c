@@ -175,10 +175,10 @@ int main (int argc, char **argv)
             /* Lettura dell'array di strutture mandate dal figlio precedente. Ovviamente il figlio P0 non dovra' leggere da alcuna pipe in quanto primo processo della pipeline */
             if (n != 0)
             { 
-                nr = read(piped[n - 1][0], cur, n * sizeof(cur)); 
+                nr = read(piped[n - 1][0], cur, n * sizeof(Strut)); 
 
                 /* Controllo validita' lettura */
-                if (nr != sizeof(cur))
+                if (nr != n * sizeof(Strut))
                 { 
                     printf("Errore: il figlio di indice %d ha letto un numero errato di byte dalla pipeline: %d\n", n, nr); 
                     exit(-1); 
@@ -200,7 +200,6 @@ int main (int argc, char **argv)
                 strcpy(cur[n].trovata, "NON TROVATA"); 
             }
 
-            printf("sono il figlio di indice %d e i parametri della mia struct valgono: %d %s\n",n, cur[n].pid_n, cur[n].trovata); 
             /* Invio dell'array al processo successivo tramite pipeline */
             nw = write(piped[n][1], cur, (n + 1) * sizeof(Strut)); 
 
@@ -248,22 +247,25 @@ int main (int argc, char **argv)
         printf("Errore: Il processo padre ha letto un numero errato di byte dalla pipeline: %d\n", nr); 
         /* exit(6)      Per lo stesso ragionamento fatto sopra */
     }
-
-    /* Ciclo di lettura delle varie strutture dell'array con stampa */
-    for (n = 0; n < N; n++)
+    else
     { 
-        if (strcmp(cur[n].trovata, "TROVATA") == 0)
+        /* Ciclo di lettura delle varie strutture dell'array con stampa */
+        for (n = 0; n < N; n++)
         { 
-            /* Il nipote di indice n ha trovato la stringa a lui associata, nel file F */
-            printf("Il processo processo figlio di indice %d ha ritornato la stringa '%s', dunque il processo nipote con pid = %d da lui generato "
-                    "ha trovato correttamente la stringa '%s' nel file %s\n", n, cur[n].trovata, cur[n].pid_n, argv[n + 2], argv[1]); 
-        }
-        else 
-        { 
-            printf("Il processo processo figlio di indice %d ha ritornato la stringa '%s', dunque il processo nipote con pid = %d da lui generato "
-                    "NON e' riuscito a trovare la stringa '%s' nel file %s\n", n, cur[n].trovata, cur[n].pid_n, argv[n + 2], argv[1]); 
-        }
-    }    
+            if (strcmp(cur[n].trovata, "TROVATA") == 0)
+            { 
+                /* Il nipote di indice n ha trovato la stringa a lui associata, nel file F */
+                printf("Il processo processo figlio di indice %d ha ritornato la stringa '%s', dunque il processo nipote con pid = %d da lui generato "
+                        "ha trovato correttamente la stringa '%s' nel file %s\n", n, cur[n].trovata, cur[n].pid_n, argv[n + 2], argv[1]); 
+            }
+            else 
+            { 
+                printf("Il processo processo figlio di indice %d ha ritornato la stringa '%s', dunque il processo nipote con pid = %d da lui generato "
+                        "NON e' riuscito a trovare la stringa '%s' nel file %s\n", n, cur[n].trovata, cur[n].pid_n, argv[n + 2], argv[1]); 
+            }
+        } 
+    }
+       
 
     /* Ciclo di attesa dei processi figli con recupero e stampa del valore tornato */
     for (n = 0; n < N; n++)
